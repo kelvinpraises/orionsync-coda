@@ -1,0 +1,1 @@
+import{j as o,O as r}from"./index-5c090d89.js";import{u as t,d as e}from"./index-19d4202d.js";const s=()=>(t(),o.jsx(r,{})),u=e(({})=>({}));async function d(){}export{s as Component,d as action,u as loader};
