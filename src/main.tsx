@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createHashRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import "@/index.css";
 import ErrorPage from "@/routes/error";
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   {
     lazy: () => import("@/routes/root.layout"),
     errorElement: <ErrorPage />,
