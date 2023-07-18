@@ -108,7 +108,7 @@ export const useVideoCall = (data: {
       stateRef.current.joinedRoom &&
       state.produceVideo
     ) {
-      console.log("true");
+      h.fetchVideoStream();
       videoRefLive.current.srcObject = h.camStream;
       h.produceVideo(h.camStream);
     } else if (
@@ -116,7 +116,6 @@ export const useVideoCall = (data: {
       videoRefLive.current &&
       state.joinedRoom
     ) {
-      console.log("true");
       videoRefLive.current.srcObject = null;
       h.stopVideoStream();
     }
@@ -129,7 +128,6 @@ export const useVideoCall = (data: {
   }, [h.micStream, state.produceAudio]);
 
   const joinRoom = () => {
-    stopProducingCamera();
     h.joinRoom();
     updateState({ showDialog: false });
     updateState({ joinedRoom: true });
@@ -146,8 +144,8 @@ export const useVideoCall = (data: {
   };
 
   const produceCamera = () => {
-    updateState({ produceVideo: true });
     h.fetchVideoStream();
+    updateState({ produceVideo: true });
   };
 
   const stopProducingCamera = () => {
