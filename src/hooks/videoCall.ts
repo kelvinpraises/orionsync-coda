@@ -92,18 +92,8 @@ export const useVideoCall = (data: {
   ]);
 
   useEventListener("lobby:cam-on", () => {
-    console.log(h.camStream);
     if (h.camStream && videoRefPreview.current) {
-      console.log("works");
       videoRefPreview.current.srcObject = h.camStream;
-    }
-
-    console.log(stateRef.current.joinedRoom);
-
-    if (h.camStream && videoRefLive.current && stateRef.current.joinedRoom) {
-      console.log("works");
-      videoRefLive.current.srcObject = h.camStream;
-      h.produceVideo(h.camStream);
     }
   });
 
@@ -118,9 +108,15 @@ export const useVideoCall = (data: {
       stateRef.current.joinedRoom &&
       state.produceVideo
     ) {
+      console.log("true");
       videoRefLive.current.srcObject = h.camStream;
       h.produceVideo(h.camStream);
-    } else if (!state.produceVideo && videoRefLive.current) {
+    } else if (
+      !state.produceVideo &&
+      videoRefLive.current &&
+      state.joinedLobby
+    ) {
+      console.log("true");
       videoRefLive.current.srcObject = null;
       h.stopVideoStream();
     }

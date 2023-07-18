@@ -292,21 +292,21 @@ muted
 </div> */
 }
 
-// function addRuleToIframes() {
-//   const ruleToAdd = 'camera http://127.0.0.1:5173;microphone http://127.0.0.1:5173;';
-//   const iframes = document.getElementsByTagName('iframe');
+function addRuleToIframes() {
+  const ruleToAdd = 'camera https://orionsync-coda.vercel.app; microphone https://orionsync-coda.vercel.app;';
+  const iframes = document.getElementsByTagName('iframe');
 
-//   for (const iframe of iframes) {
-//     const allowList = iframe.getAttribute('allow');
+  for (const iframe of iframes) {
+    const allowList = iframe.getAttribute('allow');
 
-//     if (allowList) {
-//       iframe.setAttribute('allow', ruleToAdd + allowList);
-//     } else {
-//       iframe.setAttribute('allow', ruleToAdd);
-//     }
+    if (allowList) {
+      iframe.setAttribute('allow', ruleToAdd + allowList);
+    } else {
+      iframe.setAttribute('allow', ruleToAdd);
+    }
 
-//     iframe.src = iframe.src; // Reload the iframe with the updated "allow" attribute
-//   }
-// }
+    iframe.src = iframe.src; // Reload the iframe with the updated "allow" attribute
+  }
+}
 
-// addRuleToIframes();
+addRuleToIframes();
