@@ -114,7 +114,7 @@ export const useVideoCall = (data: {
     } else if (
       !state.produceVideo &&
       videoRefLive.current &&
-      state.joinedLobby
+      state.joinedRoom
     ) {
       console.log("true");
       videoRefLive.current.srcObject = null;
