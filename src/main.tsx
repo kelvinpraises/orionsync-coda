@@ -30,7 +30,7 @@ const router = createBrowserRouter(
       ],
     },
   ],
-  { basename: "/orionsync-coda" }
+  { basename: "/orionsync-coda/" }
 );
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
