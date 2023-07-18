@@ -1,17 +1,28 @@
-import { useEffect, useReducer } from "react";
+import { useEventListener } from "@huddle01/react";
+import { useEffect, useReducer, useRef } from "react";
 
 import useHuddle01 from "@/hooks/huddle01";
+import { Console } from "console";
 
 interface VideoCallState {
-  loading: boolean;
+  initializeLoading: boolean;
+  showDialog: boolean;
+  blurMain: boolean;
+  joinedLobby: boolean;
   joinedRoom: boolean;
   recording: boolean;
   showUpload: boolean;
+  produceVideo: boolean;
+  produceAudio: boolean;
 }
 
 export type VideoCallReturnType = ReturnType<typeof useVideoCall>;
 
-export const useVideoCall = (data: { name: string; roomId: string }) => {
+export const useVideoCall = (data: {
+  name: string;
+  roomId: string;
+  photoUrl: string;
+}) => {
   const h = useHuddle01();
 
   const [state, updateState] = useReducer(
@@ -23,12 +34,32 @@ export const useVideoCall = (data: { name: string; roomId: string }) => {
       ...update,
     }),
     {
-      loading: true,
-      joinedRoom: true,
+      initializeLoading: true,
+      showDialog: false,
+      blurMain: true,
+      joinedLobby: false,
+      joinedRoom: false,
       recording: false,
       showUpload: false,
+      produceVideo: false,
+      produceAudio: false,
     }
   );
+
+  const stateRef = useRef(state);
+  const videoRefPreview = useRef<HTMLVideoElement>(null);
+  const videoRefLive = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateState({ showDialog: true });
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     h.initialize(h.projectId);
@@ -45,37 +76,126 @@ export const useVideoCall = (data: { name: string; roomId: string }) => {
       [
         h.setDisplayName.isCallable,
         h.fetchVideoStream.isCallable,
-        h.stopVideoStream.isCallable,
         h.fetchAudioStream.isCallable,
-        h.stopAudioStream.isCallable,
         h.joinRoom.isCallable,
       ].every(Boolean)
     ) {
-      h.setDisplayName(h.displayNameText);
-      updateState({ loading: false });
+      updateState({ joinedLobby: true });
+      updateState({ initializeLoading: false });
     }
   }, [
     h.displayNameText,
     h.setDisplayName.isCallable,
     h.fetchVideoStream.isCallable,
-    h.stopVideoStream.isCallable,
     h.fetchAudioStream.isCallable,
-    h.stopAudioStream.isCallable,
     h.joinRoom.isCallable,
   ]);
 
+  useEventListener("lobby:cam-on", () => {
+    console.log(h.camStream);
+    if (h.camStream && videoRefPreview.current) {
+      console.log("works");
+      videoRefPreview.current.srcObject = h.camStream;
+    }
+
+    console.log(stateRef.current.joinedRoom);
+
+    if (h.camStream && videoRefLive.current && stateRef.current.joinedRoom) {
+      console.log("works");
+      videoRefLive.current.srcObject = h.camStream;
+      h.produceVideo(h.camStream);
+    }
+  });
+
+  useEventListener("room:joined", () => {
+    setUserInfo();
+  });
+
+  useEffect(() => {
+    if (
+      h.camStream &&
+      videoRefLive.current &&
+      stateRef.current.joinedRoom &&
+      state.produceVideo
+    ) {
+      videoRefLive.current.srcObject = h.camStream;
+      h.produceVideo(h.camStream);
+    } else if (!state.produceVideo && videoRefLive.current) {
+      videoRefLive.current.srcObject = null;
+      h.stopVideoStream();
+    }
+  }, [h.camStream, state.produceVideo]);
+
+  useEffect(() => {
+    if (h.micStream && state.produceAudio) {
+      h.produceAudio(h.micStream);
+    }
+  }, [h.micStream, state.produceAudio]);
+
   const joinRoom = () => {
-    return h.joinRoom;
+    stopProducingCamera();
+    h.joinRoom();
+    updateState({ showDialog: false });
+    updateState({ joinedRoom: true });
+    updateState({ blurMain: false });
+  };
+
+  const leaveRoom = () => {
+    stopProducingCamera();
+    stopProducingAudio();
+    h.leaveRoom();
+    updateState({ showDialog: true });
+    updateState({ joinedRoom: false });
+    updateState({ blurMain: true });
+  };
+
+  const produceCamera = () => {
+    updateState({ produceVideo: true });
+    h.fetchVideoStream();
+  };
+
+  const stopProducingCamera = () => {
+    updateState({ produceVideo: false });
+    h.stopVideoStream();
+    h.stopProducingVideo();
+  };
+
+  const produceAudio = () => {
+    updateState({ produceAudio: true });
+    h.fetchAudioStream();
+  };
+
+  const stopProducingAudio = () => {
+    updateState({ produceAudio: false });
+    h.stopAudioStream();
+    h.stopProducingAudio();
+  };
+
+  const setUserInfo = () => {
+    const user = {
+      name: data.name,
+      photoUrl: data.photoUrl,
+    };
+
+    h.setDisplayName(JSON.stringify(user));
   };
 
   return {
     state,
+    updateState,
+    peers: h.peers,
+    videoRefPreview,
+    videoRefLive,
     fetchVideoStream: h.fetchVideoStream,
     stopVideoStream: h.stopVideoStream,
     fetchAudioStream: h.fetchAudioStream,
     stopAudioStream: h.stopAudioStream,
-    videoRef: h.videoRef,
-    peers: h.peers,
+    setUserInfo,
+    produceCamera,
+    stopProducingCamera,
+    produceAudio,
+    stopProducingAudio,
     joinRoom,
+    leaveRoom,
   };
 };

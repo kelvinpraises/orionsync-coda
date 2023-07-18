@@ -9,15 +9,13 @@ import {
   useRoom,
   useVideo,
 } from "@huddle01/react/hooks";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 export type HuddleType = ReturnType<typeof useHuddle01>;
 
 const useHuddle01 = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   const [roomId, setRoomId] = useState("");
-  const [displayNameText, setDisplayNameText] = useState("Guest");
+  const [displayNameText, setDisplayNameText] = useState("Kelvin");
   const projectId = "TxG-OolMwGeCoZPzX660e65wwuU2MP83";
   const [accessToken, setAccessToken] = useState("");
 
@@ -51,8 +49,6 @@ const useHuddle01 = () => {
   } = useRecording();
 
   return {
-    videoRef,
-
     roomId,
     setRoomId,
     displayNameText,

@@ -15,11 +15,11 @@ const router = createBrowserRouter([
         lazy: () => import("@/routes/index"),
       },
       {
-        path: "meeting/:contractAddress",
+        path: "meeting/",
         lazy: () => import("@/routes/meeting"),
       },
       {
-        path: "meeting/:contractAddress/consensus",
+        path: "consensus/",
         lazy: () => import("@/routes/consensus"),
       },
       {
@@ -31,7 +31,7 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <RouterProvider router={router} />
+  // <React.StrictMode>
+  // </React.StrictMode>
 );
