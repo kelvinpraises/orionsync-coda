@@ -1,1 +1,0 @@
-import{j as o}from"./index-5c090d89.js";import{u as r,d as e}from"./index-19d4202d.js";const a=()=>(r(),o.jsx("div",{children:"Component"})),s=e(({})=>({}));async function d(){}export{a as Component,d as action,s as loader};
